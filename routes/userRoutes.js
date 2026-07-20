@@ -1,0 +1,16 @@
+const express = require("express");
+const router = express.Router();
+const userController = require("../controllers/userController");
+
+const protect = require("../middlewares/authMiddleware");
+const authorize = require("../middlewares/roleMiddleware");
+
+router.post("/ajouter", protect, authorize(["admin"]), userController.ajouterUtilisateur);
+router.get("/list", protect, authorize(["admin"]), userController.listerUtilisateurs);
+router.get("/:id",protect, authorize(["admin", "teacher", "student"]), userController.getUtilisateurById);
+router.put("/:id", protect, authorize(["admin", "teacher", "student"]),userController.updateUtilisateur);
+router.delete("/:id",protect, authorize(["admin"]), userController.deleteUtilisateur);
+
+
+module.exports = router;
+
