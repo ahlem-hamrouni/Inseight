@@ -1,27 +1,34 @@
 const Course = require("../models/Course");
-
-exports.ajouterCourse = async (req, res) => {
-  try {
-    const { titre, description, level, duration, teacher, departement } = req.body;
-    
-    const nouvelObj = new Course({
-      titre,
-      description,
-      level,
-      duration,
-      teacher,
-      departement,
-      image: req.file ? req.file.filename : null, 
-    });
-
-    await nouvelObj.save(); 
-    res.status(201).json(nouvelObj);
-  } catch (err) {
-    res.status(400).json({ message: "Erreur d'ajout", error: err.message });
-  }
-};
-
-exports.listerCourses = async (req, res) => {
+const Departement= require("../models/Departement");
+const Teacher= require("../models/Teacher");
+exports.getCourses = async (req, res, next) => { 
+  try { 
+    const courses = await Course.find().populate(' departement').populate ('Teacher'); 
+    res.status(200).json({ success: true, data: courses }); 
+  } catch (error) { next(error); } 
+}; 
+ 
+exports.createCourse = async (req, res, next) => { 
+  try { 
+    const course = await Course.create({ ...req.body, teacher: req.user.id }); 
+    res.status(201).json({ success: true, data: course }); 
+  } catch (error) { next(error); } 
+}; 
+ 
+exports.updateCourse = async (req, res, next) => { 
+  try { 
+    const course = await Course.findByIdAndUpdate(req.params.id, req.body, { new: true }); 
+    res.status(200).json({ success: true, data: course }); 
+  } catch (error) { next(error); } 
+}; 
+ 
+exports.deleteCourse = async (req, res, next) => { 
+  try { 
+    await Course.findByIdAndDelete(req.params.id); 
+    res.status(200).json({ success: true, message: 'Cours supprimé' }); 
+  } catch (error) { next(error); } 
+}; 
+ exports.listerCourses = async (req, res) => {
   try {
     const items = await Course.find().populate("departement").populate("teacher");
     res.json(items);
@@ -29,33 +36,9 @@ exports.listerCourses = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-exports.getCourseById = async (req, res) => {
-  try {
-    const item = await Course.findById(req.params.id).populate("departement").populate("teacher");
-    if (!item) return res.status(404).json({ message: "Cours non trouvé" });
-    res.json(item);
-  } catch (err) {
-    res.status(500).json({ message: "Erreur lors de la récupération", error: err.message });
-  }
-};
-
-exports.updateCourse = async (req, res) => {
-  try {
-    const updatedObj = await Course.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!updatedObj) return res.status(404).json({ message: "Cours non trouvé" });
-    res.json(updatedObj);
-  } catch (err) {
-    res.status(400).json({ message: "Erreur de mise à jour", error: err.message });
-  }
-};
-
-exports.deleteCourse = async (req, res) => {
-  try {
-    const deletedObj = await Course.findByIdAndDelete(req.params.id);
-    if (!deletedObj) return res.status(404).json({ message: "Cours non trouvé" });
-    res.json({ message: "Cours supprimé avec succès" });
-  } catch (err) {
-    res.status(500).json({ message: "Erreur de suppression", error: err.message });
-  }
-};
+exports.enrollCourse = async (req, res, next) => { 
+  try { 
+    const inscription = await Inscription.create({ student: req.user.id, course: req.params.id }); 
+    res.status(201).json({ success: true, data: inscription }); 
+  } catch (error) { next(error); } 
+}; 

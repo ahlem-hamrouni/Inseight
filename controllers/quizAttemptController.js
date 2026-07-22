@@ -1,51 +1,53 @@
 const QuizAttempt = require("../models/QuizAttempt");
 const Answer = require("../models/Answer");
-exports.ajouterAttempt = async (req, res) => {
-  try {
-    const nouvelObj = new QuizAttempt(req.body);
-    await nouvelObj.save();
-    res.status(201).json(nouvelObj);
-  } catch (err) {
-    res.status(400).json({ message: "Erreur d'ajout", error: err.message });
-  }
-};
+const Question = require ("../models/Question");
+const Choice = require ("../models/Choice");
 
-exports.listerAttempts = async (req, res) => {
-  try {
-    const items = await QuizAttempt.find().populate("student").populate("quiz");
-    res.json(items);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-exports.getAttemptById = async (req, res) => {
-  try {
-    const item = await QuizAttempt.findById(req.params.id).populate("student").populate("quiz");
-    if (!item) return res.status(404).json({ message: "Tentative non trouvée" });
-    res.json(item);
-  } catch (err) {
-    res.status(500).json({ message: "Erreur lors de la récupération", error: err.message });
-  }
-};
-
-exports.updateAttempt = async (req, res) => {
-  try {
-    const updatedObj = await QuizAttempt.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!updatedObj) return res.status(404).json({ message: "Tentative non trouvée" });
-    res.json(updatedObj);
-  } catch (err) {
-    res.status(400).json({ message: "Erreur de mise à jour", error: err.message });
-  }
-};
-
-exports.deleteAttempt = async (req, res) => {
-  try {
-    await Answer.deleteMany({ attempt: req.params.id });
-    const deletedObj = await QuizAttempt.findByIdAndDelete(req.params.id);
-    if (!deletedObj) return res.status(404).json({ message: "Tentative non trouvée" });
-    res.json({ message: "Tentative supprimée avec succès" });
-  } catch (err) {
-    res.status(500).json({ message: "Erreur de suppression", error: err.message });
-  }
+exports.takeQuiz = async (req, res, next) => { 
+  try { 
+    const attempt = await QuizAttempt.create({ student: req.user.id, quiz: req.params.quizId }); 
+    res.status(201).json({ success: true, data: attempt }); 
+  } catch (error) { next(error); } 
+}; 
+ 
+exports.submitAnswers = async (req, res, next) => { 
+  try { 
+    const { attemptId } = req.params; 
+    const { answers } = req.body; 
+ 
+    const attempt = await QuizAttempt.findById(attemptId); 
+    let totalScore = 0; 
+ 
+    for (const item of answers) { 
+      const question = await Question.findById(item.questionId); 
+      let isCorrect = false; 
+      let pointsEarned = 0; 
+ 
+      if (question.type === 'MCQ' || question.type === 'TrueFalse') { 
+        const correctChoice = await Choice.findOne({ question: question._id, isCorrect: true }); 
+        if (correctChoice && correctChoice._id.toString() === item.selectedChoiceId) { 
+          isCorrect = true; 
+          pointsEarned = question.points; 
+        } 
+      } 
+ 
+      totalScore += pointsEarned; 
+ 
+      await Answer.create({ 
+        attempt: attempt._id, 
+        question: question._id, 
+        selectedChoice: item.selectedChoiceId, 
+        textAnswer: item.textAnswer, 
+        isCorrect, 
+        pointsEarned 
+      }); 
+    } 
+ 
+    attempt.score = totalScore; 
+    attempt.submittedAt = new Date(); 
+    attempt.duration = Math.floor((attempt.submittedAt - attempt.startedAt) / 1000); 
+    await attempt.save(); 
+ 
+    res.status(200).json({ success: true, score: attempt.score }); 
+  } catch (error) { next(error); } 
 };

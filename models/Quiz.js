@@ -1,13 +1,12 @@
 const mongoose = require("mongoose");
-
-const quizSchema = new mongoose.Schema({
-  course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
-  title:  String, 
-  description: String,
-  duration: Number, // En minutes
-  passingScore: Number,
-  isPublished:  Boolean ,
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User'}
-}, { timestamps: true });
-
-module.exports = mongoose.model("Quiz", quizSchema);
+const quizSchema = new mongoose.Schema({ 
+  course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true }, 
+  title: { type: String, required: true }, 
+  description: { type: String }, 
+  duration: { type: Number }, // En minutes 
+  passingScore: { type: Number, default: 50 }, 
+  isPublished: { type: Boolean, default: false }, 
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } 
+}, { timestamps: true }); 
+ 
+module.exports= mongoose.model('Quiz', quizSchema); 

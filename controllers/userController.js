@@ -8,7 +8,7 @@ const bcrypt = require("bcrypt");
 
 exports.ajouterUtilisateur = async (req, res) => {
   try {
-    const { role } = req.body; // nchoufu el role li jè mel body
+    const { role } = req.body; 
     let nouvelUser;
 const salt = await bcrypt.genSalt(10);
 req.body.password = await bcrypt.hash(req.body.password, salt);

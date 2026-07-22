@@ -34,13 +34,13 @@ app.use("/api/metrics", require("./routes/performanceMetricRoutes"));
 app.use("/api/notifications", require("./routes/notificationRoutes"));
 app.use("/api/recommendations", require("./routes/recommendationRoutes"));
 app.use("/api/logs", require("./routes/auditLogRoutes"));
-app.use("/api/dashboards", require("./routes/dashboardRoutes"));
+app.use("/api/analytics", require("./routes/analyticsRoutes"));
 
 app.use("/uploads", express.static(path.join(path.resolve(), 
 "/uploads"))); 
-/* Middlewares globaux */
-app.use(express.json()); // lire le body JSON
-app.use(cors());         // autoriser les requêtes externes
+
+app.use(express.json()); 
+app.use(cors());         
 
 app.use("/api/auth", require("./routes/authRoutes"));
 

@@ -1,14 +1,20 @@
 const Question = require("../models/Question");
 const Choice = require("../models/Choice");
 
-exports.ajouterQuestion = async (req, res) => {
-  try {
-    const nouvelObj = new Question(req.body);
-    await nouvelObj.save();
-    res.status(201).json(nouvelObj);
-  } catch (err) {
-    res.status(400).json({ message: "Erreur d'ajout", error: err.message });
-  }
+exports.addQuestion = async (req, res, next) => { 
+  try { 
+    const quizId = req.params.quizId
+    const { choices, ...questionData } = req.body; 
+    const question = await Question.create({ ...questionData, quiz: req.params.quizId }); 
+ 
+    let createdChoices = [];
+    if (choices && choices.length > 0) { 
+      const choiceDocs = choices.map(c => ({ ...c, question: question._id })); 
+      createChoices = await Choice.insertMany(choiceDocs); 
+    } 
+ 
+    res.status(201).json({ success: true, data: question , choices: createChoices }); 
+  } catch (error) { next(error); } 
 };
 
 exports.listerQuestions = async (req, res) => {
