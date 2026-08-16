@@ -10,6 +10,7 @@ router.post("/create",protect, authorize(["teacher","admin"]) , upload.single("i
 router.post('/:id/enroll', protect, authorize('student'),courseController.enrollCourse); 
 router.get("/list", protect, authorize(["student", "teacher", "admin"]),courseController.listerCourses);
 router.get('/',courseController.getCourses); 
+router.put("/:id",protect, authorize(["teacher", "admin"]), courseController.updateCourse);
 
 router.delete("/:id",protect, authorize(["teacher", "admin"]), courseController.deleteCourse);
 

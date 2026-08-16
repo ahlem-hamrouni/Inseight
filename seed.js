@@ -32,7 +32,7 @@ const seedDatabase = async () => {
     await mongoose.connect(MONGO_URI);
     console.log(' Connecté à MongoDB pour le seeding...');
 
-   
+    // Nettoyage de la base de données
     await Departement.deleteMany({}); 
     await User.deleteMany({});
     await Course.deleteMany({});
@@ -53,6 +53,7 @@ const seedDatabase = async () => {
 
     const hashedPassword = await bcrypt.hash('Password123!', 10);
 
+  
     const dept1 = await Departement.create({ name: 'Département Informatique 1', description: 'Génie Logiciel' });
     const dept2 = await Departement.create({ name: 'Département Informatique 2', description: 'Web Dev' });
     const dept3 = await Departement.create({ name: 'Département Informatique 3', description: 'Data Science' });
@@ -64,30 +65,34 @@ const seedDatabase = async () => {
     const dept9 = await Departement.create({ name: 'Département Informatique 9', description: 'Systèmes' });
     const dept10 = await Departement.create({ name: 'Département Informatique 10', description: 'Mobile' });
 
-    const admin1 = await Admin.create({ firstName: 'Admin1', lastName: 'System', email: 'admin1@gamil.com', password: hashedPassword, permissions: ['ALL_PERMISSIONS'] });
+    
+    const admin1 = await Admin.create({ firstName: 'Admin1', lastName: 'System', email: 'admin1@gmail.com', password: hashedPassword, permissions: ['ALL_PERMISSIONS'] });
     const admin2 = await Admin.create({ firstName: 'Admin2', lastName: 'System', email: 'admin2@gmail.com', password: hashedPassword, permissions: ['ALL_PERMISSIONS'] });
 
-    const t1 = await Teacher.create({ firstName: 'Mounir', lastName: 'ben salah', email: 'teacher1@gmail.com', password: hashedPassword, speciality: 'MERN', office: 'B-101'});
-    const t2 = await Teacher.create({ firstName: 'Sami', lastName: 'jlassi', email: 'teacher2@gmail.com', password: hashedPassword, speciality: 'React', office: 'B-102' });
-    const t3 = await Teacher.create({ firstName: 'Ahmed', lastName: 'gaddour', email: 'teacher3@gmail.com', password: hashedPassword, speciality: 'Node.js', office: 'B-103' });
-    const t4 = await Teacher.create({ firstName: 'Saleh', lastName: 'trabelsi', email: 'teacher4@gmail.com', password: hashedPassword, speciality: 'Python', office: 'B-104'});
-    const t5 = await Teacher.create({ firstName: 'ali', lastName: 'hamrouni', email: 'teacher5@gmail.com', password: hashedPassword, speciality: 'Java', office: 'B-105' });
-    const t6 = await Teacher.create({ firstName: 'Amer', lastName: 'kallel', email: 'teacher6@gmail.com', password: hashedPassword, speciality: 'PHP', office: 'B-106',  });
-    const t7 = await Teacher.create({ firstName: 'Fadwa', lastName: 'jlali', email: 'teacher7@gmail.com', password: hashedPassword, speciality: 'DevOps', office: 'B-107'  });
-    const t8 = await Teacher.create({ firstName: 'Houda', lastName: 'souii', email: 'teacher8@gmail.com', password: hashedPassword, speciality: 'SQL', office: 'B-108' });
-    const t9 = await Teacher.create({ firstName: 'Amira', lastName: 'souissi', email: 'teacher9@gmail.com', password: hashedPassword, speciality: 'Flutter', office: 'B-109' });
-    const t10 = await Teacher.create({ firstName: 'Manel', lastName: 'sallemi', email: 'teacher10@gmail.com', password: hashedPassword, speciality: 'Angular', office: 'B-110'});
+    
+    const t1 = await Teacher.create({ firstName: 'Mounir', lastName: 'ben salah', email: 'teacher1@gmail.com', password: hashedPassword, speciality: 'MERN', office: 'B-101', departement: dept1._id });
+    const t2 = await Teacher.create({ firstName: 'Sami', lastName: 'jlassi', email: 'teacher2@gmail.com', password: hashedPassword, speciality: 'React', office: 'B-102', departement: dept2._id });
+    const t3 = await Teacher.create({ firstName: 'Ahmed', lastName: 'gaddour', email: 'teacher3@gmail.com', password: hashedPassword, speciality: 'Node.js', office: 'B-103', departement: dept3._id });
+    const t4 = await Teacher.create({ firstName: 'Saleh', lastName: 'trabelsi', email: 'teacher4@gmail.com', password: hashedPassword, speciality: 'Python', office: 'B-104', departement: dept4._id });
+    const t5 = await Teacher.create({ firstName: 'ali', lastName: 'hamrouni', email: 'teacher5@gmail.com', password: hashedPassword, speciality: 'Java', office: 'B-105', departement: dept5._id });
+    const t6 = await Teacher.create({ firstName: 'Amer', lastName: 'kallel', email: 'teacher6@gmail.com', password: hashedPassword, speciality: 'PHP', office: 'B-106', departement: dept6._id });
+    const t7 = await Teacher.create({ firstName: 'Fadwa', lastName: 'jlali', email: 'teacher7@gmail.com', password: hashedPassword, speciality: 'DevOps', office: 'B-107', departement: dept7._id });
+    const t8 = await Teacher.create({ firstName: 'Houda', lastName: 'souii', email: 'teacher8@gmail.com', password: hashedPassword, speciality: 'SQL', office: 'B-108', departement: dept8._id });
+    const t9 = await Teacher.create({ firstName: 'Amira', lastName: 'souissi', email: 'teacher9@gmail.com', password: hashedPassword, speciality: 'Flutter', office: 'B-109', departement: dept9._id });
+    const t10 = await Teacher.create({ firstName: 'Manel', lastName: 'sallemi', email: 'teacher10@gmail.com', password: hashedPassword, speciality: 'Angular', office: 'B-110', departement: dept10._id });
 
-    const s1 = await Student.create({ firstName: 'Sami', lastName: 'souissi', email: 'student1@gmail.com', password: hashedPassword, studentCode: 'ETU1', level: 'L2' });
-    const s2 = await Student.create({ firstName: 'Ahmed', lastName: 'ben mansour', email: 'student2@gmail.com', password: hashedPassword, studentCode: 'ETU2', level: 'L2'   });
-    const s3 = await Student.create({ firstName: 'asma', lastName: 'chaffari', email: 'student3@gmail.com', password: hashedPassword, studentCode: 'ETU3', level: 'L2'  });
-    const s4 = await Student.create({ firstName: 'salwa', lastName: 'jlali', email: 'student4@gmail.com', password: hashedPassword, studentCode: 'ETU4', level: 'L2' });
-    const s5 = await Student.create({ firstName: 'Kenza', lastName: 'sallemi', email: 'student5@gmail.com', password: hashedPassword, studentCode: 'ETU5', level: 'L2' });
-    const s6 = await Student.create({ firstName: 'Maram', lastName: 'ben amor', email: 'student6@gmail.com', password: hashedPassword, studentCode: 'ETU6', level: 'L2' });
-    const s7 = await Student.create({ firstName: 'Fatma', lastName: 'borchani', email: 'student7@gmail.com', password: hashedPassword, studentCode: 'ETU7', level: 'L2' });
-    const s8 = await Student.create({ firstName: 'Sabri', lastName: 'msaed', email: 'student8@gmail.com', password: hashedPassword, studentCode: 'ETU8', level: 'L2'});
-    const s9 = await Student.create({ firstName: 'Lina', lastName: 'frikha', email: 'student9@gmail.com', password: hashedPassword, studentCode: 'ETU9', level: 'L2' });
-    const s10 = await Student.create({ firstName: 'Hadil', lastName: 'ismail', email: 'student10@gmail.com', password: hashedPassword, studentCode: 'ETU10', level: 'L2' });
+    
+    const s1 = await Student.create({ firstName: 'Sami', lastName: 'souissi', email: 'student1@gmail.com', password: hashedPassword, studentCode: 'ETU01', level: 'L2', group: 'BI-1', departement: dept1._id });
+    const s2 = await Student.create({ firstName: 'Ahmed', lastName: 'ben mansour', email: 'student2@gmail.com', password: hashedPassword, studentCode: 'ETU02', level: 'L2', group: 'BI-1', departement: dept2._id });
+    const s3 = await Student.create({ firstName: 'asma', lastName: 'chaffari', email: 'student3@gmail.com', password: hashedPassword, studentCode: 'ETU03', level: 'L2', group: 'BI-1', departement: dept3._id });
+    const s4 = await Student.create({ firstName: 'salwa', lastName: 'jlali', email: 'student4@gmail.com', password: hashedPassword, studentCode: 'ETU04', level: 'L2', group: 'BI-1', departement: dept4._id });
+    const s5 = await Student.create({ firstName: 'Kenza', lastName: 'sallemi', email: 'student5@gmail.com', password: hashedPassword, studentCode: 'ETU05', level: 'L2', group: 'BI-1', departement: dept5._id });
+    const s6 = await Student.create({ firstName: 'Maram', lastName: 'ben amor', email: 'student6@gmail.com', password: hashedPassword, studentCode: 'ETU06', level: 'L2', group: 'BI-1', departement: dept6._id });
+    const s7 = await Student.create({ firstName: 'Fatma', lastName: 'borchani', email: 'student7@gmail.com', password: hashedPassword, studentCode: 'ETU07', level: 'L2', group: 'BI-1', departement: dept7._id });
+    const s8 = await Student.create({ firstName: 'Sabri', lastName: 'msaed', email: 'student8@gmail.com', password: hashedPassword, studentCode: 'ETU08', level: 'L2', group: 'BI-1', departement: dept8._id });
+    const s9 = await Student.create({ firstName: 'Lina', lastName: 'frikha', email: 'student9@gmail.com', password: hashedPassword, studentCode: 'ETU09', level: 'L2', group: 'BI-1', departement: dept9._id });
+    const s10 = await Student.create({ firstName: 'Hadil', lastName: 'ismail', email: 'student10@gmail.com', password: hashedPassword, studentCode: 'ETU10', level: 'L2', group: 'BI-1', departement: dept10._id });
+
 
     const c1 = await Course.create({ title: 'Cours MERN 1', description: 'Intro Express', departement: dept1._id, teacher: t1._id, duration: 30, level: 'Débutant' });
     const c2 = await Course.create({ title: 'Cours MERN 2', description: 'React Basics', departement: dept2._id, teacher: t2._id, duration: 25, level: 'Intermédiaire' });
@@ -100,6 +105,7 @@ const seedDatabase = async () => {
     const c9 = await Course.create({ title: 'Cours MERN 9', description: 'Testing Jest', departement: dept9._id, teacher: t9._id, duration: 18, level: 'Avancé' });
     const c10 = await Course.create({ title: 'Cours MERN 10', description: 'Docker Express', departement: dept10._id, teacher: t10._id, duration: 22, level: 'Avancé' });
 
+    
     const m1 = await Module.create({ titre: 'Module 1', description: 'Bases', order: 1, course: c1._id });
     const m2 = await Module.create({ titre: 'Module 2', description: 'Bases', order: 1, course: c2._id });
     const m3 = await Module.create({ titre: 'Module 3', description: 'Bases', order: 1, course: c3._id });
@@ -111,6 +117,7 @@ const seedDatabase = async () => {
     const m9 = await Module.create({ titre: 'Module 9', description: 'Bases', order: 1, course: c9._id });
     const m10 = await Module.create({ titre: 'Module 10', description: 'Bases', order: 1, course: c10._id });
 
+    
     await Lesson.create({ title: 'Leçon 1', content: 'Intro 1', order: 1, module: m1._id });
     await Lesson.create({ title: 'Leçon 2', content: 'Intro 2', order: 1, module: m2._id });
     await Lesson.create({ title: 'Leçon 3', content: 'Intro 3', order: 1, module: m3._id });
@@ -122,6 +129,7 @@ const seedDatabase = async () => {
     await Lesson.create({ title: 'Leçon 9', content: 'Intro 9', order: 1, module: m9._id });
     await Lesson.create({ title: 'Leçon 10', content: 'Intro 10', order: 1, module: m10._id });
 
+    
     const qz1 = await Quiz.create({ course: c1._id, title: 'Quiz 1', description: 'Test 1', duration: 10, passingScore: 50, isPublished: true, createdBy: t1._id });
     const qz2 = await Quiz.create({ course: c2._id, title: 'Quiz 2', description: 'Test 2', duration: 10, passingScore: 50, isPublished: true, createdBy: t2._id });
     const qz3 = await Quiz.create({ course: c3._id, title: 'Quiz 3', description: 'Test 3', duration: 10, passingScore: 50, isPublished: true, createdBy: t3._id });
@@ -133,6 +141,7 @@ const seedDatabase = async () => {
     const qz9 = await Quiz.create({ course: c9._id, title: 'Quiz 9', description: 'Test 9', duration: 10, passingScore: 50, isPublished: true, createdBy: t9._id });
     const qz10 = await Quiz.create({ course: c10._id, title: 'Quiz 10', description: 'Test 10', duration: 10, passingScore: 50, isPublished: true, createdBy: t10._id });
 
+   
     const qn1 = await Question.create({ quiz: qz1._id, statement: 'Question 1?', type: 'MCQ', points: 2, order: 1 });
     const qn2 = await Question.create({ quiz: qz2._id, statement: 'Question 2?', type: 'MCQ', points: 2, order: 1 });
     const qn3 = await Question.create({ quiz: qz3._id, statement: 'Question 3?', type: 'MCQ', points: 2, order: 1 });
@@ -144,6 +153,7 @@ const seedDatabase = async () => {
     const qn9 = await Question.create({ quiz: qz9._id, statement: 'Question 9?', type: 'MCQ', points: 2, order: 1 });
     const qn10 = await Question.create({ quiz: qz10._id, statement: 'Question 10?', type: 'MCQ', points: 2, order: 1 });
 
+   
     const ch1 = await Choice.create({ question: qn1._id, text: 'Vrai 1', isCorrect: true, order: 1 });
     const ch2 = await Choice.create({ question: qn2._id, text: 'Vrai 2', isCorrect: true, order: 1 });
     const ch3 = await Choice.create({ question: qn3._id, text: 'Vrai 3', isCorrect: true, order: 1 });
@@ -155,6 +165,7 @@ const seedDatabase = async () => {
     const ch9 = await Choice.create({ question: qn9._id, text: 'Vrai 9', isCorrect: true, order: 1 });
     const ch10 = await Choice.create({ question: qn10._id, text: 'Vrai 10', isCorrect: true, order: 1 });
 
+    
     await Inscription.create({ student: s1._id, course: c1._id, status: 'active' });
     await Inscription.create({ student: s2._id, course: c2._id, status: 'active' });
     await Inscription.create({ student: s3._id, course: c3._id, status: 'active' });
@@ -166,6 +177,7 @@ const seedDatabase = async () => {
     await Inscription.create({ student: s9._id, course: c9._id, status: 'active' });
     await Inscription.create({ student: s10._id, course: c10._id, status: 'active' });
 
+    
     const att1 = await QuizAttempt.create({ student: s1._id, quiz: qz1._id, score: 80, totalQuestions: 1, duration: 300 });
     const att2 = await QuizAttempt.create({ student: s2._id, quiz: qz2._id, score: 90, totalQuestions: 1, duration: 300 });
     const att3 = await QuizAttempt.create({ student: s3._id, quiz: qz3._id, score: 70, totalQuestions: 1, duration: 300 });
@@ -188,6 +200,7 @@ const seedDatabase = async () => {
     await Answer.create({ attempt: att9._id, question: qn9._id, selectedChoice: ch9._id, isCorrect: true, pointsEarned: 2 });
     await Answer.create({ attempt: att10._id, question: qn10._id, selectedChoice: ch10._id, isCorrect: true, pointsEarned: 2 });
 
+    
     await Notification.create({ user: s1._id, title: 'Notif 1', message: 'Bienvenue', type: 'INFO', isRead: false });
     await Notification.create({ user: s2._id, title: 'Notif 2', message: 'Bienvenue', type: 'INFO', isRead: false });
     await Notification.create({ user: s3._id, title: 'Notif 3', message: 'Bienvenue', type: 'INFO', isRead: false });

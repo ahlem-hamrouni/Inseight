@@ -1,36 +1,63 @@
 const Quiz = require("../models/Quiz");
 const Question = require("../models/Question");
-const choice = require("../models/choice");
-
-exports.createQuiz = async (req, res, next) => { 
-  try { 
-    const quiz = await Quiz.create({ ...req.body, course: req.params.courseId, createdBy: 
-req.user.id }); 
-    res.status(201).json({ success: true, data: quiz }); 
-  } catch (error) { next(error); } 
-}; 
- 
-exports.publishQuiz = async (req, res, next) => { 
-  try { 
-    const quiz = await Quiz.findByIdAndUpdate(req.params.id, { isPublished: true }, { new: 
-true }); 
-    res.status(200).json({ success: true, data: quiz }); 
-  } catch (error) { next(error); } 
-}; 
-exports.updateQuiz = async (req, res) => {
-  try {
-    const updatedObj = await Quiz.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!updatedObj) return res.status(404).json({ message: "Quiz non trouvé" });
-    res.json(updatedObj);
-  } catch (err) {
-    res.status(400).json({ message: "Erreur de mise à jour", error: err.message });
-  }
-};
+const Inscription = require("../models/Inscription");
 
 exports.listerQuizzes = async (req, res) => {
   try {
-    const items = await Quiz.find().populate("course").populate("createdBy");
-    res.json(items);
+    const role = req.user?.role;
+    const userId = req.user?.id || req.user?._id;
+    const recherche = (req.query.q || req.query.search || "").trim();
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5; 
+    const skip = (page - 1) * limit;
+
+    let searchQuery = {};
+    if (recherche !== "") {
+      searchQuery.$or = [
+        { title: { $regex: recherche, $options: "i" } },
+        { description: { $regex: recherche, $options: "i" } }
+      ];
+    }
+    let filter = { ...searchQuery };
+
+    if (role === 'student') {
+      const inscriptions = await Inscription.find({ student: userId });
+      const courseIds = inscriptions.map(ins => ins.course);
+
+      filter.course = { $in: courseIds };
+      filter.isPublished = true;
+
+    } else if (role === 'teacher') {
+      filter.createdBy = userId;
+    } 
+
+    const total = await Quiz.countDocuments(filter);
+    const quizzes = await Quiz.find(filter)
+      .populate("course")
+      .populate("createdBy")
+      .skip(skip)
+      .limit(limit)
+      .lean(); 
+
+   
+    const quizzesWithDetails = await Promise.all(
+      quizzes.map(async (quiz) => {
+        const questionsCount = await Question.countDocuments({ quiz: quiz._id });
+        return {
+          ...quiz,
+          questionsCount
+        };
+      })
+    );
+
+    res.json({
+      success: true, 
+      quizzes: quizzesWithDetails, 
+      total, 
+      page, 
+      pages: Math.ceil(total / limit) 
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -46,6 +73,33 @@ exports.getQuizById = async (req, res) => {
   }
 };
 
+exports.createQuiz = async (req, res, next) => { 
+  try { 
+    const quiz = await Quiz.create({ 
+      ...req.body, 
+      course: req.params.courseId || req.body.course, 
+      createdBy: req.user?.id || req.user?._id 
+    }); 
+    res.status(201).json({ success: true, data: quiz }); 
+  } catch (error) { next(error); } 
+}; 
+
+exports.publishQuiz = async (req, res, next) => { 
+  try { 
+    const quiz = await Quiz.findByIdAndUpdate(req.params.id, { isPublished: true }, { new: true }); 
+    res.status(200).json({ success: true, data: quiz }); 
+  } catch (error) { next(error); } 
+}; 
+
+exports.updateQuiz = async (req, res) => {
+  try {
+    const updatedObj = await Quiz.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updatedObj) return res.status(404).json({ message: "Quiz non trouvé" });
+    res.json(updatedObj);
+  } catch (err) {
+    res.status(400).json({ message: "Erreur de mise à jour", error: err.message });
+  }
+};
 
 exports.deleteQuiz = async (req, res) => {
   try {

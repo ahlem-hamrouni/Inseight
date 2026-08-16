@@ -5,7 +5,7 @@ const questionController = require("../controllers/questionController");
 const protect = require("../middlewares/authMiddleware");
 const authorize = require("../middlewares/roleMiddleware");
 
-router.post("//:quizId/questions", protect, authorize(["teacher", "admin"]), questionController.addQuestion);
+router.post("/:quizId/questions", protect, authorize(["teacher", "admin"]), questionController.addQuestion);
 router.get("/list", protect, authorize(["student", "teacher", "admin"]), questionController.listerQuestions);
 router.get("/:quizId", protect, authorize(["student", "teacher", "admin"]), questionController.listerQuestionsParQuiz);
 router.get("/:id", protect, authorize(["student", "teacher", "admin"]), questionController.getQuestionById);

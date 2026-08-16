@@ -6,12 +6,14 @@ const TeacherSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
   office: String,
-
   hireDate: {
     type: Date,
     default: Date.now,
+  },
+  departement: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Departement",
   },
 });
 

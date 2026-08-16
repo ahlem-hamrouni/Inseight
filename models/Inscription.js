@@ -6,5 +6,4 @@ const inscriptionSchema = new mongoose.Schema ({
      status: { type: String, enum: ['active', 'completed', 'dropped'], },
 },{ timestamps: true },
 );
-inscriptionSchema.index({ student: 1, course: 1 }, { unique: true }); 
 module.exports=mongoose.model("Inscription", inscriptionSchema)

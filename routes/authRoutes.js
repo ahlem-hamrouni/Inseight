@@ -11,19 +11,8 @@ router.post("/login", login);
 router.post('/logout', protect, logout); 
 router.put('/profile', protect, updateProfile); 
 router.patch('/change-password', protect, changePassword); 
-
-router.get("/list", protect,authorize(["admin"]), (req, res) => {
-  res.json({ message: "Profil utilisateur", user: req.user });
-});
-
-router.get(
-  "/admin",
-  protect,
-  authorize(["admin"]),
-  (req, res) => {
-    res.json({ message: "Espace administrateur" });
-  }
-);
+router.get("/list", protect,authorize(["admin"]), (req, res) => {res.json({ message: "Profil utilisateur", user: req.user });});
+router.get("/admin",protect,authorize(["admin"]),(req, res) => {res.json({ message: "Espace administrateur" });});
 
 
 module.exports = router;
