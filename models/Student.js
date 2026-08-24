@@ -20,5 +20,4 @@ const StudentSchema = new mongoose.Schema({
     ref: "Departement",
   },
 });
-
 module.exports = User.discriminator("student", StudentSchema);

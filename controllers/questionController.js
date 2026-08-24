@@ -10,7 +10,7 @@ exports.addQuestion = async (req, res, next) => {
     let createdChoices = [];
     if (choices && choices.length > 0) { 
       const choiceDocs = choices.map(c => ({ ...c, question: question._id })); 
-      createChoices = await Choice.insertMany(choiceDocs); 
+      createdChoices = await Choice.insertMany(choiceDocs); 
     } 
  
     res.status(201).json({ success: true, data: question , choices: createChoices }); 

@@ -9,7 +9,6 @@ exports.getCourses = async (req, res, next) => {
     const userId = req.user?.id || req.user?._id;
 
     const page = parseInt(req.query.page) || 1;
-    const isPaginated = req.query.limit || req.query.page;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
@@ -31,20 +30,18 @@ exports.getCourses = async (req, res, next) => {
       query.level = { $regex: niveau, $options: "i" };
     }
 
-    if (role === 'teacher') {
-      query.teacher = userId;
-    }
-
+    
     const total = await Course.countDocuments(query);
 
     let coursesQuery = Course.find(query)
       .populate('departement')
       .populate('teacher')
+      .skip(skip).limit(limit)
       .sort({ createdAt: -1 });
 
-    if (isPaginated) {
-      coursesQuery = coursesQuery.skip(skip).limit(limit);
-    }
+    
+      
+    
 
     const courses = await coursesQuery;
 
@@ -65,14 +62,15 @@ exports.getCourses = async (req, res, next) => {
       data: formattedCourses, 
       courses: formattedCourses, 
       total, 
-      page: isPaginated ? page : 1, 
-      pages: isPaginated ? Math.ceil(total / limit) : 1 
+      page,
+      pages:  Math.ceil(total / limit) 
     });
   } catch (error) {
     next(error);
   }
 };
 exports.listerCourses = exports.getCourses;
+
 exports.createCourse = async (req, res, next) => { 
   try { 
     const course = await Course.create({ 
