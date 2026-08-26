@@ -4,7 +4,7 @@ const PerformanceMetric = require("../models/PerformanceMetric");
 const DashboardData = require("../models/DashboardData");
 const Student = require("../models/Student");
 const Course = require("../models/Course");
-const User = require("../models/User"); // Zidna el-User model
+const User = require("../models/User"); 
 
 const filterFromQuery = (query) => {
   const filter = {};

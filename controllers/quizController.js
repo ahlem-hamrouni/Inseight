@@ -1,6 +1,7 @@
 const Quiz = require("../models/Quiz");
 const Question = require("../models/Question");
 const Inscription = require("../models/Inscription");
+const QuizAttempt = require("../models/QuizAttempt"); 
 
 exports.listerQuizzes = async (req, res) => {
   try {
@@ -40,13 +41,27 @@ exports.listerQuizzes = async (req, res) => {
       .limit(limit)
       .lean(); 
 
-   
+    
     const quizzesWithDetails = await Promise.all(
       quizzes.map(async (quiz) => {
         const questionsCount = await Question.countDocuments({ quiz: quiz._id });
+        
+        let lastAttemptId = null;
+        if (role === 'student') {
+          const lastAttempt = await QuizAttempt.findOne({
+            quiz: quiz._id,
+            student: userId
+          }).sort({ createdAt: -1 });
+
+          if (lastAttempt) {
+            lastAttemptId = lastAttempt._id;
+          }
+        }
+
         return {
           ...quiz,
-          questionsCount
+          questionsCount,
+          lastAttemptId 
         };
       })
     );
