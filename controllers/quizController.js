@@ -37,6 +37,7 @@ exports.listerQuizzes = async (req, res) => {
     const quizzes = await Quiz.find(filter)
       .populate("course")
       .populate("createdBy")
+      .populate('lesson')
       .skip(skip)
       .limit(limit)
       .lean(); 
@@ -88,16 +89,31 @@ exports.getQuizById = async (req, res) => {
   }
 };
 
+const Course = require('../models/Course');
+
 exports.createQuiz = async (req, res, next) => { 
   try { 
+    const courseId = req.params.courseId || req.body.course;
+    const userId = req.user?.id || req.user?._id;
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ success: false, message: "Course not found." });
+
+    const isAuthorized = [course.teacher, course.createdBy].some(id => id?.toString() === userId?.toString());
+    
+    if (req.user?.role !== 'admin' && !isAuthorized) {
+      return res.status(403).json({ success: false, message: "Non autorisé pour ce cours." });
+    }
+
     const quiz = await Quiz.create({ 
       ...req.body, 
-      course: req.params.courseId || req.body.course, 
-      createdBy: req.user?.id || req.user?._id 
+      course: courseId, 
+      createdBy: userId 
     }); 
+
     res.status(201).json({ success: true, data: quiz }); 
   } catch (error) { next(error); } 
-}; 
+};
 
 exports.publishQuiz = async (req, res, next) => { 
   try { 

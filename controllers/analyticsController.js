@@ -16,31 +16,24 @@ const filterFromQuery = (query) => {
 };
 
 exports.generateForStudent = async (req, res, next) => {
-  try {
-    const studentId = req.user._id || req.user.id;
-    const enrollmentsCount = await Inscription.countDocuments({ student: studentId, status: "active" });
-
-    const [scoreStats] = await QuizAttempt.aggregate([
-      { $match: { student: studentId } },
-      { $group: {_id: null, avgScore: { $avg: "$score" }}},
-      { $project: {_id: 0, avgScore: { $round: ["$avgScore", 2] }}}
-    ]);
-
-    const totalCourses = enrollmentsCount || 0;
-    const averageScore = scoreStats?.avgScore || 0;
-
-    const dashboard = await DashboardData.findOneAndUpdate(
-      { user: studentId },
-      { user: studentId, totalCourses, averageScore },
-      { upsert: true, new: true }
-    );
-
-    res.status(200).json({ success: true, data: dashboard });
-  } catch (error) {
-    next(error);
-  }
+  try { 
+    const studentId = req.user.id; 
+    const attempts = await QuizAttempt.find({ student: studentId }); 
+    const enrollments = await Inscription.find({ student: studentId }); 
+ 
+    const totalCourses = enrollments.length; 
+    const averageScore = attempts.reduce((acc, curr) => acc + curr.score, 0) / 
+(attempts.length || 1); 
+ 
+    const dashboard = await DashboardData.findOneAndUpdate( 
+      { user: studentId }, 
+      { user: studentId, totalCourses, averageScore }, 
+      { upsert: true, new: true } 
+    ); 
+ 
+    res.status(200).json({ success: true, data: dashboard }); 
+  } catch (error) { next(error); } 
 };
-
 exports.generateForTeacher = async (req, res, next) => { 
   try { 
     const metrics = await PerformanceMetric.find({ course: req.params.courseId }); 
@@ -163,6 +156,7 @@ exports.getStudentsByGroup = async (req, res, next) => {
     next(error);
   }
 };
+
 exports.getPlatformGrowth = async (req, res, next) => {
   try {
     const growthData = await User.aggregate([

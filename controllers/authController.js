@@ -1,35 +1,58 @@
+
+
 const User = require("../models/User");
+const Student = require("../models/Student");
+const Teacher = require("../models/Teacher");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-require("../models/Student"); 
-require("../models/Teacher");
-require("../models/Admin");
-
 exports.register = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role, ...rest } = req.body;
 
   try {
     const userExiste = await User.findOne({ email });
     if (userExiste) {
-      return res.status(400).json({ message: "Utilisateur déjà existant" });
+      return res.status(400).json({ message: "Utilisateur déjà existant avec cet email" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const baseData = { ...rest, email, password: hashedPassword, role };
 
-    await User.create({
-      ...req.body,
-      password: hashedPassword
-    });
+    let newUser;
+    if (role === 'student') {
+      newUser = await Student.create({
+        firstName: baseData.firstName,
+        lastName: baseData.lastName,
+        email: baseData.email,
+        password: baseData.password,
+        phone: baseData.phone,
+        studentCode: baseData.studentCode,
+        level: baseData.level,
+        group: baseData.group,
+        birthDate: baseData.birthDate
+      });
+    } else if (role === 'teacher') {
+      newUser = await Teacher.create({
+        firstName: baseData.firstName,
+        lastName: baseData.lastName,
+        email: baseData.email,
+        password: baseData.password,
+        phone: baseData.phone,
+        speciality: baseData.speciality,
+        office: baseData.office
+      });
+    }
 
-    res.status(201).json({ message: "Inscription réussie" });
+    res.status(201).json({ message: "Inscription réussie", user: newUser });
 
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyValue)[0];
+      return res.status(400).json({ message: `${field} existe déjà dans la base de données.` });
+    }
+    res.status(500).json({ message: error.message || "Erreur serveur" });
   }
 };
-
-
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 

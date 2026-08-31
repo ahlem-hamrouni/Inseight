@@ -38,7 +38,7 @@ app.use("/api/analytics", require("./routes/analyticsRoutes"));
 
 app.use("/uploads", express.static(path.join(path.resolve(), 
 "/uploads"))); 
-
+app.use('/api/chat', require('./routes/chatRoutes'));
 app.use(express.json()); 
 app.use(cors());         
 

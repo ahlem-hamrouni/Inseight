@@ -18,6 +18,10 @@ exports.getCourses = async (req, res, next) => {
 
     const query = {};
 
+    if (role === 'teacher' && userId) {
+      query.teacher = userId;
+    }
+
     if (recherche !== "") {
       query.$or = [
         { title: { $regex: recherche, $options: "i" } },
@@ -30,7 +34,6 @@ exports.getCourses = async (req, res, next) => {
       query.level = { $regex: niveau, $options: "i" };
     }
 
-    
     const total = await Course.countDocuments(query);
 
     let coursesQuery = Course.find(query)
@@ -39,38 +42,46 @@ exports.getCourses = async (req, res, next) => {
       .skip(skip).limit(limit)
       .sort({ createdAt: -1 });
 
-    
-      
-    
-
     const courses = await coursesQuery;
 
-    let enrolledCourseIds = [];
+    const inscriptionMap = new Map();
+
     if (role === 'student' && userId) {
-      const myInscriptions = await Inscription.find({ student: userId }).select('course');
-      enrolledCourseIds = myInscriptions.map(ins => ins.course ? ins.course.toString() : '');
+      const myInscriptions = await Inscription.find({ student: userId }).select('course status');
+      
+      myInscriptions.forEach(ins => {
+        if (ins.course) {
+          inscriptionMap.set(ins.course.toString(), ins.status);
+        }
+      });
     }
+    
     const formattedCourses = courses.map(course => {
       const courseObj = course.toObject();
-      courseObj.isEnrolled = enrolledCourseIds.includes(course._id.toString());
+      const courseIdStr = course._id.toString();
+      
+      const status = inscriptionMap.get(courseIdStr);
+
+      courseObj.isEnrolled = inscriptionMap.has(courseIdStr);
+      courseObj.isCompleted = status === 'completed';
+      courseObj.enrollmentStatus = status || null;
+
       return courseObj;
     });
 
-    
     res.status(200).json({ 
       success: true, 
       data: formattedCourses, 
       courses: formattedCourses, 
       total, 
       page,
-      pages:  Math.ceil(total / limit) 
+      pages: Math.ceil(total / limit) 
     });
   } catch (error) {
     next(error);
   }
 };
 exports.listerCourses = exports.getCourses;
-
 exports.createCourse = async (req, res, next) => { 
   try { 
     const course = await Course.create({ 
