@@ -88,16 +88,16 @@ const seedDatabase = async () => {
     const s9 = await Student.create({ firstName: 'Lina', lastName: 'frikha', email: 'student9@gmail.com', password: hashedPassword, studentCode: 'ETU09', level: 'M1', group: 'BI-1', departement: dept9._id });
     const s10 = await Student.create({ firstName: 'Hadil', lastName: 'ismail', email: 'student10@gmail.com', password: hashedPassword, studentCode: 'ETU10', level: 'M2', group: 'BI-2', departement: dept10._id });
 
-    const c1 = await Course.create({ title: 'Introduction à Express.js', description: 'Découvrir le framework Express', departement: dept1._id, teacher: t1._id, duration: 30, level: 'Débutant' });
-    const c2 = await Course.create({ title: 'Les Bases de React', description: 'Comprendre JSX et les composants', departement: dept2._id, teacher: t2._id, duration: 25, level: 'Débutant' });
-    const c3 = await Course.create({ title: 'Bases de données MongoDB', description: 'Introduction aux collections et documents', departement: dept3._id, teacher: t3._id, duration: 20, level: 'Débutant' });
-    const c4 = await Course.create({ title: 'Bases de Node.js', description: 'Créer un serveur HTTP simple', departement: dept4._id, teacher: t4._id, duration: 40, level: 'Débutant' });
-    const c5 = await Course.create({ title: 'Initiation à Java', description: 'Variables, boucles et fonctions en Java', departement: dept5._id, teacher: t5._id, duration: 15, level: 'Débutant' });
-    const c6 = await Course.create({ title: 'Bases de PHP', description: 'Scripting côté serveur simple', departement: dept6._id, teacher: t6._id, duration: 10, level: 'Débutant' });
-    const c7 = await Course.create({ title: 'Introduction aux APIs REST', description: 'Comprendre les méthodes GET, POST, PUT, DELETE', departement: dept7._id, teacher: t7._id, duration: 35, level: 'Débutant' });
-    const c8 = await Course.create({ title: 'Bases de SQL', description: 'Requêtes de sélection SELECT simples', departement: dept8._id, teacher: t8._id, duration: 12, level: 'Débutant' });
-    const c9 = await Course.create({ title: 'Introduction à Flutter', description: 'Créer sa première interface mobile', departement: dept9._id, teacher: t9._id, duration: 18, level: 'Débutant' });
-    const c10 = await Course.create({ title: 'Bases d\'Angular', description: 'Découvrir les modules et composants Angular', departement: dept10._id, teacher: t10._id, duration: 22, level: 'Débutant' });
+    const c1 = await Course.create({ title: 'Introduction à Express.js', description: 'Découvrir le framework Express', departement: dept1._id, teacher: t1._id, duration: 30, level: 'L1' });
+    const c2 = await Course.create({ title: 'Les Bases de React', description: 'Comprendre JSX et les composants', departement: dept2._id, teacher: t2._id, duration: 25, level: 'L2' });
+    const c3 = await Course.create({ title: 'Bases de données MongoDB', description: 'Introduction aux collections et documents', departement: dept3._id, teacher: t3._id, duration: 20, level: 'L3' });
+    const c4 = await Course.create({ title: 'Bases de Node.js', description: 'Créer un serveur HTTP simple', departement: dept4._id, teacher: t4._id, duration: 40, level: 'M1' });
+    const c5 = await Course.create({ title: 'Initiation à Java', description: 'Variables, boucles et fonctions en Java', departement: dept5._id, teacher: t5._id, duration: 15, level: 'M2' });
+    const c6 = await Course.create({ title: 'Bases de PHP', description: 'Scripting côté serveur simple', departement: dept6._id, teacher: t6._id, duration: 10, level: 'L1' });
+    const c7 = await Course.create({ title: 'Introduction aux APIs REST', description: 'Comprendre les méthodes GET, POST, PUT, DELETE', departement: dept7._id, teacher: t7._id, duration: 35, level: 'L2' });
+    const c8 = await Course.create({ title: 'Bases de SQL', description: 'Requêtes de sélection SELECT simples', departement: dept8._id, teacher: t8._id, duration: 12, level: 'L3' });
+    const c9 = await Course.create({ title: 'Introduction à Flutter', description: 'Créer sa première interface mobile', departement: dept9._id, teacher: t9._id, duration: 18, level: 'M1' });
+    const c10 = await Course.create({ title: 'Bases d\'Angular', description: 'Découvrir les modules et composants Angular', departement: dept10._id, teacher: t10._id, duration: 22, level: 'M2' });
 
     const m1 = await Module.create({ titre: 'Module 1: Installation & Premier Serveur', description: 'Installer Express et lancer le serveur sur le port 5000', order: 1, course: c1._id });
     const m2 = await Module.create({ titre: 'Module 1: Premier Composant React', description: 'Créer un composant fonctionnel simple', order: 1, course: c2._id });
@@ -295,7 +295,7 @@ const seedDatabase = async () => {
     await AuditLog.create({ user: admin2._id, action: 'SEED', entity: 'DB', entityId: c9._id, ipAddress: '127.0.0.1' });
     await AuditLog.create({ user: admin2._id, action: 'SEED', entity: 'DB', entityId: c10._id, ipAddress: '127.0.0.1' });
 
-    console.log(' Seeding Direct terminé avec succès !');
+    console.log('Seeding Direct terminé avec succès !');
     process.exit(0);
 
   } catch (error) {

@@ -1,50 +1,38 @@
-const Recommendation = require("../models/Recommendation");
+const mongoose = require('mongoose');
+const Recommendation = require('../models/Recommendation');
+const { generateRecommendations } = require('../services/recommendationService');
 
-exports.ajouterRecommendation = async (req, res) => {
-  try {
-    const nouvelObj = new Recommendation(req.body);
-    await nouvelObj.save();
-    res.status(201).json(nouvelObj);
-  } catch (err) {
-    res.status(400).json({ message: "Erreur d'ajout", error: err.message });
-  }
+const validId = (id) => mongoose.isValidObjectId(id);
+
+const getRecommendations = async (req, res) => {
+    if (!validId(req.params.studentId)) return res.status(400).json({ success: false, message: 'Identifiant étudiant invalide.' });
+    
+    
+    let data = await Recommendation.find({ student: req.params.studentId }).populate('course', 'title description level duration image');
+    if (!data.length) data = await generateRecommendations(req.params.studentId);
+    
+    res.json({ success: true, data });
 };
 
-exports.listerRecommendations = async (req, res) => {
-  try {
-    const items = await Recommendation.find().populate("student");
-    res.json(items);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+const createRecommendations = async (req, res) => {
+    const { studentId } = req.body;
+    if (!validId(studentId)) return res.status(400).json({ success: false, message: 'Identifiant étudiant invalide.' });
+    const data = await generateRecommendations(studentId);
+    res.status(201).json({ success: true, data });
 };
 
-exports.getRecommendationById = async (req, res) => {
-  try {
-    const item = await Recommendation.findById(req.params.id).populate("student");
-    if (!item) return res.status(404).json({ message: "Recommandation non trouvée" });
-    res.json(item);
-  } catch (err) {
-    res.status(500).json({ message: "Erreur lors de la récupération", error: err.message });
-  }
+const markRecommendationAsRead = async (req, res) => {
+    if (!validId(req.params.id)) return res.status(400).json({ success: false, message: 'Identifiant recommandation invalide.' });
+    const recommendation = await Recommendation.findByIdAndUpdate(req.params.id, { status: 'read' }, { new: true });
+    if (!recommendation) return res.status(404).json({ success: false, message: 'Recommandation introuvable.' });
+    res.json({ success: true, data: recommendation });
 };
 
-exports.updateRecommendation = async (req, res) => {
-  try {
-    const updatedObj = await Recommendation.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!updatedObj) return res.status(404).json({ message: "Recommandation non trouvée" });
-    res.json(updatedObj);
-  } catch (err) {
-    res.status(400).json({ message: "Erreur de mise à jour", error: err.message });
-  }
+const markAllRecommendationsAsRead = async (req, res) => {
+    const { studentId } = req.body;
+    if (!validId(studentId)) return res.status(400).json({ success: false, message: 'Identifiant étudiant invalide.' });
+    await Recommendation.updateMany({ student: studentId, status: 'unread' }, { status: 'read' });
+    res.json({ success: true, data: [] });
 };
 
-exports.deleteRecommendation = async (req, res) => {
-  try {
-    const deletedObj = await Recommendation.findByIdAndDelete(req.params.id);
-    if (!deletedObj) return res.status(404).json({ message: "Recommandation non trouvée" });
-    res.json({ message: "Recommandation supprimée avec succès" });
-  } catch (err) {
-    res.status(500).json({ message: "Erreur de suppression", error: err.message });
-  }
-};
+module.exports = { getRecommendations, createRecommendations, markRecommendationAsRead, markAllRecommendationsAsRead };

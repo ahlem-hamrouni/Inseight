@@ -2,6 +2,9 @@ const Course = require("../models/Course");
 const Departement = require("../models/Departement");
 const Teacher = require("../models/Teacher");
 const Inscription = require("../models/Inscription");
+const User = require('../models/User');
+const Student = require("../models/Student");
+
 
 exports.getCourses = async (req, res, next) => {
   try {
@@ -11,17 +14,22 @@ exports.getCourses = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-
     const rawSearch = req.query.q || req.query.search || req.query.query || "";
     const recherche = rawSearch.trim();
-    const niveau = (req.query.niveau || req.query.level || "").trim();
-
+    let niveau = (req.query.niveau || req.query.level || "").trim();
+    if (role === 'student' && userId && !niveau) {
+      const studentDoc = await User.findById(userId).select('level');
+      if (studentDoc && studentDoc.level) {
+        niveau = studentDoc.level.trim();
+      }
+    }
     const query = {};
-
     if (role === 'teacher' && userId) {
       query.teacher = userId;
     }
-
+    if (niveau !== "") {
+      query.level = { $regex: `^${niveau}$`, $options: "i" };
+    }
     if (recherche !== "") {
       query.$or = [
         { title: { $regex: recherche, $options: "i" } },
@@ -29,11 +37,6 @@ exports.getCourses = async (req, res, next) => {
         { level: { $regex: recherche, $options: "i" } }
       ];
     }
-
-    if (niveau !== "") {
-      query.level = { $regex: niveau, $options: "i" };
-    }
-
     const total = await Course.countDocuments(query);
 
     let coursesQuery = Course.find(query)
