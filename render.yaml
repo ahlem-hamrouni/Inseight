@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: inseight-backend
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    # Optionally set environment variables here or via the Render dashboard
+    envVars: []

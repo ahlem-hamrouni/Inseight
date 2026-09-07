@@ -36,8 +36,7 @@ app.use("/api/recommendations", require("./routes/recommendationRoutes"));
 app.use("/api/logs", require("./routes/auditLogRoutes"));
 app.use("/api/analytics", require("./routes/analyticsRoutes"));
 
-app.use("/uploads", express.static(path.join(path.resolve(), 
-"/uploads"))); 
+app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
 app.use('/api/chat', require('./routes/chatRoutes'));
 
 app.use(express.json()); 
