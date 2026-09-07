@@ -8,6 +8,24 @@ const path = require("path");
 dotenv.config();
 const app = express();
 
+// Ensure Web Crypto API is available as `globalThis.crypto` for libraries
+// that expect the browser-style Web Crypto (some drivers or libs use it).
+if (typeof globalThis.crypto === 'undefined') {
+  try {
+    globalThis.crypto = require('crypto').webcrypto;
+  } catch (e) {
+    // Minimal fallback for getRandomValues if webcrypto isn't available
+    const nodeCrypto = require('crypto');
+    globalThis.crypto = {
+      getRandomValues: (arr) => {
+        const buf = nodeCrypto.randomBytes(arr.length);
+        arr.set(buf);
+        return arr;
+      }
+    };
+  }
+}
+
 // Middleware
 app.use(cors());
 app.use(express.json());
