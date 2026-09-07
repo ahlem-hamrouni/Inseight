@@ -65,6 +65,11 @@ app.use("/api/auth", require("./routes/authRoutes"));
 
 
 
+// Basic health check and root handlers
+// Render and other platforms probe an endpoint (often "/") to verify the service is healthy.
+app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
+app.get('/', (req, res) => res.send('Inseight API is running'));
+
 // Lancer le serveur
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
