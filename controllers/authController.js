@@ -77,11 +77,16 @@ exports.login = async (req, res) => {
       token,
       user: {
         id: user._id,
-        firstName: user.firstName, 
+        _id: user._id,
+        firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
         role: user.role,
-        departement: user.departement
+        departement: user.departement,
+        level: user.level || null,
+        studentCode: user.studentCode || null,
+        group: user.group || null,
+        speciality: user.speciality || null
       }
     });
 
@@ -90,29 +95,29 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.logout = async (req, res) => { 
-  res.clearCookie('token'); 
-  res.status(200).json({ success: true, message: 'Déconnexion réussie' }); 
+exports.logout = async (req, res) => {
+  res.clearCookie('token');
+  res.status(200).json({ success: true, message: 'Déconnexion réussie' });
 };
 
-exports.updateProfile = async (req, res, next) => { 
-  try { 
-    const user = await User.findByIdAndUpdate(req.user.id, req.body, { new: true }); 
-    res.status(200).json({ success: true, data: user }); 
-  } catch (error) { next(error); } 
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.user.id, req.body, { new: true });
+    res.status(200).json({ success: true, data: user });
+  } catch (error) { next(error); }
 };
 
-exports.changePassword = async (req, res, next) => { 
-  try { 
-    const { currentPassword, newPassword } = req.body; 
-    const user = await User.findById(req.user.id).select('+password'); 
-    const isMatch = await bcrypt.compare(currentPassword, user.password); 
-    if (!isMatch) return res.status(400).json({ message: 'Mot de passe actuel incorrect' }); 
+exports.changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.id).select('+password');
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) return res.status(400).json({ message: 'Mot de passe actuel incorrect' });
 
-    user.password = await bcrypt.hash(newPassword, 10); 
-    await user.save(); 
-    res.status(200).json({ success: true, message: 'Mot de passe mis à jour' }); 
-  } catch (error) { next(error); } 
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    res.status(200).json({ success: true, message: 'Mot de passe mis à jour' });
+  } catch (error) { next(error); }
 };
 
 
