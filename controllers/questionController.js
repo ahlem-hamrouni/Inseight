@@ -13,7 +13,7 @@ exports.addQuestion = async (req, res, next) => {
       createdChoices = await Choice.insertMany(choiceDocs); 
     } 
  
-    res.status(201).json({ success: true, data: question , choices: createChoices }); 
+    res.status(201).json({ success: true, data: question , choices: createdChoices }); 
   } catch (error) { next(error); } 
 };
 

@@ -18,7 +18,7 @@ exports.getCourses = async (req, res, next) => {
     const recherche = rawSearch.trim();
     let niveau = (req.query.niveau || req.query.level || "").trim();
     if (role === 'student' && userId && !niveau) {
-      const studentDoc = await Student.findById(userId).select('level');
+      const studentDoc = await User.findById(userId).select('level');
       if (studentDoc && studentDoc.level) {
         niveau = studentDoc.level.trim();
       }
@@ -51,18 +51,18 @@ exports.getCourses = async (req, res, next) => {
 
     if (role === 'student' && userId) {
       const myInscriptions = await Inscription.find({ student: userId }).select('course status');
-
+      
       myInscriptions.forEach(ins => {
         if (ins.course) {
           inscriptionMap.set(ins.course.toString(), ins.status);
         }
       });
     }
-
+    
     const formattedCourses = courses.map(course => {
       const courseObj = course.toObject();
       const courseIdStr = course._id.toString();
-
+      
       const status = inscriptionMap.get(courseIdStr);
 
       courseObj.isEnrolled = inscriptionMap.has(courseIdStr);
@@ -72,52 +72,55 @@ exports.getCourses = async (req, res, next) => {
       return courseObj;
     });
 
-    res.status(200).json({
-      success: true,
-      data: formattedCourses,
-      courses: formattedCourses,
-      total,
+    res.status(200).json({ 
+      success: true, 
+      data: formattedCourses, 
+      courses: formattedCourses, 
+      total, 
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit) 
     });
   } catch (error) {
     next(error);
   }
 };
 exports.listerCourses = exports.getCourses;
-exports.createCourse = async (req, res, next) => {
-  try {
-    const course = await Course.create({
-      ...req.body,
+exports.createCourse = async (req, res, next) => { 
+  try { 
+    const imagePath = req.file 
+      ? req.file.filename 
+      : req.body.image
+    const course = await Course.create({ 
+      ...req.body, 
       teacher: req.user._id || req.user.id,
       departement: req.user.departement || req.body.departement,
-      ...(req.file && { image: req.file.filename })
-    });
+      imagePath  
+    }); 
 
-    res.status(201).json({ success: true, data: course });
-  } catch (error) {
+    res.status(201).json({ success: true, data: course }); 
+  } catch (error) { 
     console.error(" ERROR CREATING COURSE:", error);
-    next(error);
-  }
+    next(error); 
+  } 
 };
 
-exports.updateCourse = async (req, res, next) => {
-  try {
-    const course = await Course.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.status(200).json({ success: true, data: course });
-  } catch (error) { next(error); }
-};
+exports.updateCourse = async (req, res, next) => { 
+  try { 
+    const course = await Course.findByIdAndUpdate(req.params.id, req.body, { new: true }); 
+    res.status(200).json({ success: true, data: course }); 
+  } catch (error) { next(error); } 
+}; 
 
-exports.deleteCourse = async (req, res, next) => {
-  try {
-    await Course.findByIdAndDelete(req.params.id);
-    res.status(200).json({ success: true, message: 'Cours supprimé' });
-  } catch (error) { next(error); }
-};
+exports.deleteCourse = async (req, res, next) => { 
+  try { 
+    await Course.findByIdAndDelete(req.params.id); 
+    res.status(200).json({ success: true, message: 'Cours supprimé' }); 
+  } catch (error) { next(error); } 
+}; 
 
-exports.enrollCourse = async (req, res, next) => {
-  try {
-    const inscription = await Inscription.create({ student: req.user.id, course: req.params.id });
-    res.status(201).json({ success: true, data: inscription });
-  } catch (error) { next(error); }
+exports.enrollCourse = async (req, res, next) => { 
+  try { 
+    const inscription = await Inscription.create({ student: req.user.id, course: req.params.id }); 
+    res.status(201).json({ success: true, data: inscription }); 
+  } catch (error) { next(error); } 
 };
